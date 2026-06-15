@@ -1,8 +1,9 @@
--- Cópia do XLSX de origem, sem transformação.
+-- Cópia do XLSX de origem, sem transformacao.
 
 CREATE SCHEMA IF NOT EXISTS bronze;
 
 CREATE TABLE IF NOT EXISTS bronze.incidentes (
+    id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     numero                  TEXT,
     prioridade              TEXT,
     produto                 TEXT,
