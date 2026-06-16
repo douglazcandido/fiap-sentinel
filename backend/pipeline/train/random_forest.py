@@ -72,6 +72,7 @@ def fetch_dados(engine) -> pd.DataFrame:
     logger.info('dados carregados: %d incidentes no kpi', len(df))
     return df
 
+
 def preparar_dados(df: pd.DataFrame):
     df = df.copy()
 
@@ -87,9 +88,14 @@ def preparar_dados(df: pd.DataFrame):
 
     df['kpi_violado'] = df['kpi_violado'].astype(int)
 
-    # split temporal: 2023-2024 treino, 2025 teste
-    treino = df[df['abertura_ano'] < 2025]
-    teste  = df[df['abertura_ano'] == 2025]
+    # split temporal dentro de 2025: 80% treino, 20% teste
+    # justificativa: volume KPI so explodiu em 2025 (EDA confirmou)
+    # usar 2023-2024 como treino deixaria apenas 444 linhas
+    df_2025 = df[df['abertura_ano'] == 2025].copy()
+    df_2025 = df_2025.sort_values('abertura_data').reset_index(drop=True)
+    corte = int(len(df_2025) * 0.8)
+    treino = df_2025.iloc[:corte]
+    teste = df_2025.iloc[corte:]
 
     logger.info('treino: %d linhas | teste: %d linhas', len(treino), len(teste))
     logger.info(
@@ -100,11 +106,10 @@ def preparar_dados(df: pd.DataFrame):
 
     X_treino = treino[FEATURES]
     y_treino = treino['kpi_violado']
-    X_teste  = teste[FEATURES]
-    y_teste  = teste['kpi_violado']
+    X_teste = teste[FEATURES]
+    y_teste = teste['kpi_violado']
 
     return X_treino, y_treino, X_teste, y_teste, teste
-
 
 def treinar_random_forest(X_treino, y_treino) -> RandomForestClassifier:
     logger.info('treinando random forest')
@@ -118,7 +123,6 @@ def treinar_random_forest(X_treino, y_treino) -> RandomForestClassifier:
     model.fit(X_treino, y_treino)
     logger.info('random forest treinado com sucesso')
     return model
-
 
 def avaliar_modelo(model: RandomForestClassifier, X_teste, y_teste) -> None:
     y_pred = model.predict(X_teste)
@@ -180,7 +184,6 @@ def salvar_resultados(df_teste: pd.DataFrame, probabilidades, session: Session) 
 
     session.commit()
     logger.info('risco por incidente salvo: %d registros', len(df_teste))
-
 
 def salvar_kpi_ola(df: pd.DataFrame, session: Session) -> None:
     logger.info('calculando e salvando kpis de ola')

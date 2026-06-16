@@ -1,5 +1,5 @@
 import pandas as pd
-from prophet import Prophet
+from neuralprophet import NeuralProphet
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
@@ -27,76 +27,100 @@ def fetch_serie_temporal(engine) -> pd.DataFrame:
     logger.info('serie temporal carregada: %d dias', len(df))
     return df
 
-def treinar_prophet(df: pd.DataFrame) -> Prophet:
-    logger.info('treinando modelo prophet')
-    model = Prophet(
+def treinar_neuralprophet(df: pd.DataFrame) -> NeuralProphet:
+    logger.info('treinando modelo neuralprophet')
+    model = NeuralProphet(
         yearly_seasonality=True,
         weekly_seasonality=True,
         daily_seasonality=False,
         seasonality_mode='multiplicative',
+        epochs=100,
+        batch_size=64,
+        learning_rate=0.001,
     )
-    model.fit(df)
-    logger.info('modelo prophet treinado com sucesso')
+    model.fit(df, freq='D', progress='none')
+    logger.info('modelo neuralprophet treinado com sucesso')
     return model
 
-def gerar_previsoes(model: Prophet, horizonte: int) -> pd.DataFrame:
+def gerar_previsoes(model: NeuralProphet, df: pd.DataFrame, horizonte: int) -> pd.DataFrame:
     logger.info('gerando previsao para D+%d', horizonte)
-    futuro = model.make_future_dataframe(periods=horizonte, freq='D')
-    forecast = model.predict(futuro)
-    previsoes = forecast.tail(horizonte)[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].copy()
-    previsoes['horizonte_dias'] = horizonte
-    previsoes.rename(columns={'ds': 'data_referencia'}, inplace=True)
+
+    ultima_data = df['ds'].max()
+    datas_futuras = pd.date_range(
+        start=ultima_data + pd.Timedelta(days=1),
+        periods=horizonte,
+        freq='D',
+    )
+
+    linhas = []
+    for data in datas_futuras:
+        df_pred = df.copy()
+        nova_linha = pd.DataFrame({'ds': [data], 'y': [None]})
+        df_pred = pd.concat([df_pred, nova_linha], ignore_index=True)
+        forecast = model.predict(df_pred)
+        col_yhat = 'yhat1' if 'yhat1' in forecast.columns else 'yhat'
+        ultima_previsao = forecast.iloc[-1]
+        linhas.append({
+            'data_referencia': data,
+            'yhat': max(0.0, float(ultima_previsao[col_yhat])),
+            'horizonte_dias': horizonte,
+        })
+
+    previsoes = pd.DataFrame(linhas)
+    logger.info('previsoes geradas: %d registros para D+%d', len(previsoes), horizonte)
     return previsoes
 
 def salvar_previsoes(previsoes: pd.DataFrame, session: Session) -> None:
     logger.info('salvando previsoes no gold')
 
     for _, row in previsoes.iterrows():
-        registro = PrevisaoVolume(
-            data_referencia=row['data_referencia'].date(),
-            horizonte_dias=int(row['horizonte_dias']),
-            total_previsto=round(float(row['yhat']), 2),
-            limite_inferior=round(float(row['yhat_lower']), 2),
-            limite_superior=round(float(row['yhat_upper']), 2),
-        )
+        data_ref = row['data_referencia'].date()
+        horizonte = int(row['horizonte_dias'])
+        previsto = round(float(row['yhat']), 2)
 
         existente = session.query(PrevisaoVolume).filter_by(
-            data_referencia=registro.data_referencia,
-            horizonte_dias=registro.horizonte_dias,
+            data_referencia=data_ref,
+            horizonte_dias=horizonte,
         ).first()
 
         if existente:
-            existente.total_previsto = registro.total_previsto
-            existente.limite_inferior = registro.limite_inferior
-            existente.limite_superior = registro.limite_superior
+            existente.total_previsto = previsto
+            existente.limite_inferior = None
+            existente.limite_superior = None
         else:
-            session.add(registro)
+            session.add(PrevisaoVolume(
+                data_referencia = data_ref,
+                horizonte_dias = horizonte,
+                total_previsto = previsto,
+                limite_inferior = None,
+                limite_superior = None,
+            ))
 
     session.commit()
     logger.info('previsoes salvas: %d registros', len(previsoes))
 
 def run() -> None:
-    logger.info('=== inicio do pipeline prophet ===')
+    logger.info('=== inicio do pipeline neuralprophet ===')
 
     try:
         engine = create_engine(DATABASE_URL)
 
         df = fetch_serie_temporal(engine)
-        model = treinar_prophet(df)
+        model = treinar_neuralprophet(df)
 
         with Session(engine) as session:
             for horizonte in HORIZONTE_DIAS:
-                previsoes = gerar_previsoes(model, horizonte)
+                previsoes = gerar_previsoes(model, df, horizonte)
                 salvar_previsoes(previsoes, session)
 
         engine.dispose()
-        logger.info('pipeline prophet finalizado com sucesso')
+        logger.info('pipeline neuralprophet finalizado com sucesso')
 
     except Exception:
-        logger.exception('erro inesperado no pipeline prophet')
+        logger.exception('erro inesperado no pipeline neuralprophet')
         raise
 
-    logger.info('=== fim do pipeline prophet ===')
+    logger.info('=== fim do pipeline neuralprophet ===')
 
 if __name__ == '__main__':
     run()
