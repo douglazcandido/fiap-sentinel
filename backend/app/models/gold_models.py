@@ -1,9 +1,10 @@
 from datetime import date, datetime
 
-from sqlalchemy import BigInteger, Boolean, Date, DateTime, Integer, Numeric, SmallInteger, Text, text
+from sqlalchemy import BigInteger, Boolean, Date, DateTime, ForeignKey, Integer, Numeric, SmallInteger, Text, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+
 
 class DimPrioridade(Base):
     __tablename__ = 'dim_prioridade'
@@ -23,6 +24,7 @@ class DimPrioridade(Base):
     def __repr__(self) -> str:
         return f'<gold.DimPrioridade(codigo={self.codigo}, label={self.label})>'
 
+
 class DimGrupo(Base):
     __tablename__ = 'dim_grupo'
     __table_args__ = {'schema': 'gold'}
@@ -37,6 +39,7 @@ class DimGrupo(Base):
 
     def __repr__(self) -> str:
         return f'<gold.DimGrupo(nome={self.nome})>'
+
 
 # =========================================================
 # FRENTE HISTORICA
@@ -59,6 +62,7 @@ class HistoricoKpisGerais(Base):
     def __repr__(self) -> str:
         return f'<HistoricoKpisGerais(total={self.total_incidentes}, violacoes={self.total_violacoes_ola})>'
 
+
 class HistoricoVolumeHora(Base):
     __tablename__ = 'historico_volume_hora'
     __table_args__ = {'schema': 'gold'}
@@ -70,6 +74,7 @@ class HistoricoVolumeHora(Base):
 
     def __repr__(self) -> str:
         return f'<HistoricoVolumeHora(hora={self.hora}, total={self.total_incidentes})>'
+
 
 class HistoricoVolumeDiaSemana(Base):
     __tablename__ = 'historico_volume_dia_semana'
@@ -84,6 +89,7 @@ class HistoricoVolumeDiaSemana(Base):
     def __repr__(self) -> str:
         return f'<HistoricoVolumeDiaSemana(dia={self.dia_label}, total={self.total_incidentes})>'
 
+
 class HistoricoVolumeMensal(Base):
     __tablename__ = 'historico_volume_mensal'
     __table_args__ = {'schema': 'gold'}
@@ -91,19 +97,18 @@ class HistoricoVolumeMensal(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     ano: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     mes: Mapped[int] = mapped_column(SmallInteger, nullable=False)
-    prioridade_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    prioridade_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey('gold.dim_prioridade.id'), nullable=False
+    )
     total_incidentes: Mapped[int] = mapped_column(Integer, nullable=False)
     total_no_kpi: Mapped[int] = mapped_column(Integer, nullable=False)
     gerado_em: Mapped[datetime] = mapped_column(DateTime, server_default=text('now()'))
 
-    prioridade: Mapped['DimPrioridade'] = relationship(
-        back_populates='volumes_mensais',
-        primaryjoin='HistoricoVolumeMensal.prioridade_id == DimPrioridade.id',
-        foreign_keys='HistoricoVolumeMensal.prioridade_id',
-    )
+    prioridade: Mapped['DimPrioridade'] = relationship(back_populates='volumes_mensais')
 
     def __repr__(self) -> str:
         return f'<HistoricoVolumeMensal(ano={self.ano}, mes={self.mes})>'
+
 
 class HistoricoViolacoesMensal(Base):
     __tablename__ = 'historico_violacoes_mensal'
@@ -112,39 +117,37 @@ class HistoricoViolacoesMensal(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     ano: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     mes: Mapped[int] = mapped_column(SmallInteger, nullable=False)
-    prioridade_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    prioridade_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey('gold.dim_prioridade.id'), nullable=False
+    )
     total_violacoes: Mapped[int] = mapped_column(Integer, nullable=False)
     gerado_em: Mapped[datetime] = mapped_column(DateTime, server_default=text('now()'))
 
-    prioridade: Mapped['DimPrioridade'] = relationship(
-        back_populates='violacoes_mensais',
-        primaryjoin='HistoricoViolacoesMensal.prioridade_id == DimPrioridade.id',
-        foreign_keys='HistoricoViolacoesMensal.prioridade_id',
-    )
+    prioridade: Mapped['DimPrioridade'] = relationship(back_populates='violacoes_mensais')
 
     def __repr__(self) -> str:
         return f'<HistoricoViolacoesMensal(ano={self.ano}, mes={self.mes}, violacoes={self.total_violacoes})>'
+
 
 class HistoricoVolumeGrupo(Base):
     __tablename__ = 'historico_volume_grupo'
     __table_args__ = {'schema': 'gold'}
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    grupo_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    grupo_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey('gold.dim_grupo.id'), nullable=False
+    )
     total_incidentes: Mapped[int] = mapped_column(Integer, nullable=False)
     total_no_kpi: Mapped[int] = mapped_column(Integer, nullable=False)
     total_violacoes: Mapped[int] = mapped_column(Integer, nullable=False)
     pct_sem_intervencao: Mapped[float] = mapped_column(Numeric(5, 2), nullable=False)
     gerado_em: Mapped[datetime] = mapped_column(DateTime, server_default=text('now()'))
 
-    grupo: Mapped['DimGrupo'] = relationship(
-        back_populates='volumes_grupo',
-        primaryjoin='HistoricoVolumeGrupo.grupo_id == DimGrupo.id',
-        foreign_keys='HistoricoVolumeGrupo.grupo_id',
-    )
+    grupo: Mapped['DimGrupo'] = relationship(back_populates='volumes_grupo')
 
     def __repr__(self) -> str:
         return f'<HistoricoVolumeGrupo(grupo_id={self.grupo_id}, total={self.total_incidentes})>'
+
 
 # =========================================================
 # FRENTE PREDITIVA
@@ -163,7 +166,8 @@ class PrevisaoVolume(Base):
     gerado_em: Mapped[datetime] = mapped_column(DateTime, server_default=text('now()'))
 
     def __repr__(self) -> str:
-        return f'<PrevisaoVolume(data={self.data_referencia}, horizonte={self.horizonte_dias}, previsto={self.total_previsto})>'
+        return f'<PrevisaoVolume(data={self.data_referencia}, horizonte={self.horizonte_dias})>'
+
 
 class RiscoOlaIncidente(Base):
     __tablename__ = 'risco_ola_incidente'
@@ -171,26 +175,23 @@ class RiscoOlaIncidente(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     numero: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
-    prioridade_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    grupo_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    prioridade_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey('gold.dim_prioridade.id'), nullable=False
+    )
+    grupo_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey('gold.dim_grupo.id'), nullable=False
+    )
     probabilidade_violacao: Mapped[float] = mapped_column(Numeric(5, 4), nullable=False)
     classe_risco: Mapped[str] = mapped_column(Text, nullable=False)
     abertura_data: Mapped[date] = mapped_column(Date, nullable=False)
     gerado_em: Mapped[datetime] = mapped_column(DateTime, server_default=text('now()'))
 
-    prioridade: Mapped['DimPrioridade'] = relationship(
-        back_populates='riscos_incidente',
-        primaryjoin='RiscoOlaIncidente.prioridade_id == DimPrioridade.id',
-        foreign_keys='RiscoOlaIncidente.prioridade_id',
-    )
-    grupo: Mapped['DimGrupo'] = relationship(
-        back_populates='riscos_incidente',
-        primaryjoin='RiscoOlaIncidente.grupo_id == DimGrupo.id',
-        foreign_keys='RiscoOlaIncidente.grupo_id',
-    )
+    prioridade: Mapped['DimPrioridade'] = relationship(back_populates='riscos_incidente')
+    grupo: Mapped['DimGrupo'] = relationship(back_populates='riscos_incidente')
 
     def __repr__(self) -> str:
         return f'<RiscoOlaIncidente(numero={self.numero}, risco={self.classe_risco})>'
+
 
 class RiscoOlaKpi(Base):
     __tablename__ = 'risco_ola_kpi'
@@ -198,7 +199,9 @@ class RiscoOlaKpi(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     ano: Mapped[int] = mapped_column(SmallInteger, nullable=False)
-    prioridade_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    prioridade_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey('gold.dim_prioridade.id'), nullable=False
+    )
     violacoes_acumuladas: Mapped[int] = mapped_column(Integer, nullable=False)
     total_no_kpi: Mapped[int] = mapped_column(Integer, nullable=False)
     pct_atingimento_meta: Mapped[float | None] = mapped_column(Numeric(5, 2))
@@ -207,14 +210,11 @@ class RiscoOlaKpi(Base):
     pct_projetado_meta: Mapped[float | None] = mapped_column(Numeric(5, 2))
     gerado_em: Mapped[datetime] = mapped_column(DateTime, server_default=text('now()'))
 
-    prioridade: Mapped['DimPrioridade'] = relationship(
-        back_populates='riscos_kpi',
-        primaryjoin='RiscoOlaKpi.prioridade_id == DimPrioridade.id',
-        foreign_keys='RiscoOlaKpi.prioridade_id',
-    )
+    prioridade: Mapped['DimPrioridade'] = relationship(back_populates='riscos_kpi')
 
     def __repr__(self) -> str:
         return f'<RiscoOlaKpi(ano={self.ano}, pct_meta={self.pct_atingimento_meta})>'
+
 
 class ClusterPerfil(Base):
     __tablename__ = 'cluster_perfil'
@@ -223,23 +223,20 @@ class ClusterPerfil(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     cluster_id: Mapped[int] = mapped_column(Integer, nullable=False, unique=True)
     descricao: Mapped[str | None] = mapped_column(Text)
-    grupo_id: Mapped[int | None] = mapped_column(BigInteger)
-    prioridade_id: Mapped[int | None] = mapped_column(BigInteger)
+    grupo_id: Mapped[int | None] = mapped_column(BigInteger, ForeignKey('gold.dim_grupo.id'))
+    prioridade_id: Mapped[int | None] = mapped_column(BigInteger, ForeignKey('gold.dim_prioridade.id'))
     hora_predominante: Mapped[int | None] = mapped_column(SmallInteger)
     dia_semana_predominante: Mapped[int | None] = mapped_column(SmallInteger)
     total_incidentes: Mapped[int] = mapped_column(Integer, nullable=False)
     pct_violacao_ola: Mapped[float | None] = mapped_column(Numeric(5, 2))
     gerado_em: Mapped[datetime] = mapped_column(DateTime, server_default=text('now()'))
 
-    grupo: Mapped['DimGrupo | None'] = relationship(
-        back_populates='clusters',
-        primaryjoin='ClusterPerfil.grupo_id == DimGrupo.id',
-        foreign_keys='ClusterPerfil.grupo_id',
-    )
+    grupo: Mapped['DimGrupo | None'] = relationship(back_populates='clusters')
     incidentes: Mapped[list['ClusterIncidente']] = relationship(back_populates='cluster')
 
     def __repr__(self) -> str:
         return f'<ClusterPerfil(cluster_id={self.cluster_id}, descricao={self.descricao})>'
+
 
 class ClusterIncidente(Base):
     __tablename__ = 'cluster_incidente'
@@ -247,17 +244,16 @@ class ClusterIncidente(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     numero: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
-    cluster_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    cluster_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey('gold.cluster_perfil.cluster_id'), nullable=False
+    )
     gerado_em: Mapped[datetime] = mapped_column(DateTime, server_default=text('now()'))
 
-    cluster: Mapped['ClusterPerfil'] = relationship(
-        back_populates='incidentes',
-        primaryjoin='ClusterIncidente.cluster_id == ClusterPerfil.cluster_id',
-        foreign_keys='ClusterIncidente.cluster_id',
-    )
+    cluster: Mapped['ClusterPerfil'] = relationship(back_populates='incidentes')
 
     def __repr__(self) -> str:
         return f'<ClusterIncidente(numero={self.numero}, cluster_id={self.cluster_id})>'
+
 
 class Recomendacao(Base):
     __tablename__ = 'recomendacao'
@@ -266,16 +262,12 @@ class Recomendacao(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     tipo: Mapped[str] = mapped_column(Text, nullable=False)
     prioridade: Mapped[str | None] = mapped_column(Text)
-    grupo_id: Mapped[int | None] = mapped_column(BigInteger)
+    grupo_id: Mapped[int | None] = mapped_column(BigInteger, ForeignKey('gold.dim_grupo.id'))
     titulo: Mapped[str] = mapped_column(Text, nullable=False)
     descricao: Mapped[str] = mapped_column(Text, nullable=False)
     gerado_em: Mapped[datetime] = mapped_column(DateTime, server_default=text('now()'))
 
-    grupo: Mapped['DimGrupo | None'] = relationship(
-        back_populates='recomendacoes',
-        primaryjoin='Recomendacao.grupo_id == DimGrupo.id',
-        foreign_keys='Recomendacao.grupo_id',
-    )
+    grupo: Mapped['DimGrupo | None'] = relationship(back_populates='recomendacoes')
 
     def __repr__(self) -> str:
         return f'<Recomendacao(tipo={self.tipo}, titulo={self.titulo})>'
