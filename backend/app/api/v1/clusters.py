@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -6,6 +6,7 @@ from app.core.logger import setup_logger
 from app.schemas.base import SentinelResponse
 from app.schemas.clusters import ClustersCompletoSchema
 from app.services import clusters as clusters_service
+
 
 logger = setup_logger(__name__)
 
@@ -18,7 +19,14 @@ def get_clusters(db: Session = Depends(get_db)):
     representando padroes recorrentes de incidentes.'''
     logger.info('requisicao recebida: GET /clusters')
 
-    data = clusters_service.get_clusters_completo(db)
+    try:
+        data = clusters_service.get_clusters_completo(db)
+    except Exception:
+        logger.exception('erro inesperado ao buscar clusters')
+        raise HTTPException(
+            status_code=500,
+            detail='Erro interno ao processar clusters.',
+        )
 
     return SentinelResponse(
         mensagem='Clusters recuperados com sucesso',
