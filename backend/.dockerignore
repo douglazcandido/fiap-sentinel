@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.env
+logs/
+*.log
+data/
+.git/
+.gitignore
+README.md
+pyrefly.toml
+lightning_logs/

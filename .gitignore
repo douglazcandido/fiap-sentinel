@@ -223,5 +223,3 @@ __marimo__/
 *.pptx
 
 pyrefly.toml
-
-.dockerignore
