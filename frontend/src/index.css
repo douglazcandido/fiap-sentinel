@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Base surfaces */
+  --color-background: #0a0e14;
+  --color-surface: #11161f;
+  --color-surface-2: #161b24;
+  --color-surface-3: #1c222d;
+
+  /* Text */
+  --color-foreground: #e6e9ef;
+  --color-muted: #8b94a3;
+  --color-muted-2: #5c6473;
+
+  /* Borders */
+  --color-border: #232a36;
+  --color-border-strong: #2e3744;
+
+  /* Accent - cyan tech */
+  --color-accent: #22d3ee;
+  --color-accent-2: #0ea5e9;
+  --color-accent-soft: rgba(34, 211, 238, 0.12);
+
+  /* Semantic status */
+  --color-risk-high: #f43f5e;
+  --color-risk-high-soft: rgba(244, 63, 94, 0.14);
+  --color-risk-med: #f59e0b;
+  --color-risk-med-soft: rgba(245, 158, 11, 0.14);
+  --color-risk-low: #10b981;
+  --color-risk-low-soft: rgba(16, 185, 129, 0.14);
+
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    background-color: var(--color-background);
+    color-scheme: dark;
+  }
+  body {
+    margin: 0;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  * {
+    box-sizing: border-box;
+  }
+}
+
+@layer utilities {
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+  .glow-accent {
+    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.25), 0 0 24px -4px rgba(34, 211, 238, 0.35);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 6px;
+  border: 2px solid var(--color-background);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a4453;
+}
+
+/* Animations */
+@keyframes fade-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-enter {
+  animation: fade-slide-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fade {
+  animation: fade-in 0.35s ease both;
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+.animate-skeleton {
+  animation: pulse-soft 1.5s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-spin-slow {
+  animation: spin 0.8s linear infinite;
+}
