@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.core.logger import setup_logger
+from app.models.usuario_model import Usuario
 from app.schemas.base import SentinelResponse
 from app.schemas.historico import HistoricoCompletoSchema
 from app.services import historico as historico_service
@@ -14,10 +16,13 @@ router = APIRouter(prefix='/historico', tags=['Historico'])
 
 
 @router.get('', response_model=SentinelResponse[HistoricoCompletoSchema])
-def get_historico(db: Session = Depends(get_db)):
+def get_historico(
+    db: Session = Depends(get_db),
+    usuario: Usuario = Depends(get_current_user),
+):
     '''Retorna o payload completo do painel historico (EDA): kpis gerais,
     volume por hora, dia da semana, mes, e por equipe.'''
-    logger.info('requisicao recebida: GET /historico')
+    logger.info('requisicao recebida: GET /historico (usuario=%s)', usuario.email)
 
     try:
         data = historico_service.get_historico_completo(db)
