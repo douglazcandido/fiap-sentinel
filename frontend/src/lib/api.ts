@@ -1,6 +1,5 @@
 import axios, { AxiosError } from "axios"
 import type { ApiEnvelope } from "./types"
-import { MOCK_MODE, getMockData } from "./mock"
 
 export const TOKEN_KEY = "sentinel_token"
 export const USER_KEY = "sentinel_user"
@@ -54,11 +53,6 @@ export function getErrorMessage(error: unknown): string {
 
 /** Unwraps the standard { sucesso, mensagem, data } envelope and returns data. */
 export async function fetchData<T>(path: string, params?: Record<string, unknown>): Promise<T> {
-  if (MOCK_MODE) {
-    // Simulate network latency so loading states are visible.
-    await new Promise((r) => setTimeout(r, 450))
-    return getMockData<T>(path)
-  }
   const res = await api.get<ApiEnvelope<T>>(path, { params })
   if (!res.data?.sucesso) {
     throw new Error(res.data?.mensagem || "Falha ao carregar os dados.")

@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react"
 import { api, TOKEN_KEY, USER_KEY, getErrorMessage } from "./api"
-import { MOCK_MODE, mockLogin } from "./mock"
 import type { ApiEnvelope, LoginResponse, Usuario } from "./types"
 
 interface AuthContextValue {
@@ -27,23 +26,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, senha: string) => {
     try {
-      let data: LoginResponse
-      if (MOCK_MODE) {
-        await new Promise((r) => setTimeout(r, 500))
-        if (!email || !senha) {
-          throw new Error("Informe e-mail e senha.")
-        }
-        data = { ...mockLogin, email }
-      } else {
-        const res = await api.post<ApiEnvelope<LoginResponse>>("/api/v1/auth/login", {
-          email,
-          senha,
-        })
-        if (!res.data?.sucesso) {
-          throw new Error(res.data?.mensagem || "Falha na autenticação.")
-        }
-        data = res.data.data
+      const res = await api.post<ApiEnvelope<LoginResponse>>("/api/v1/auth/login", {
+        email,
+        senha,
+      })
+      if (!res.data?.sucesso) {
+        throw new Error(res.data?.mensagem || "Falha na autenticação.")
       }
+      const data = res.data.data
+
       const { access_token, nome, email: userEmail } = data
       const usuario: Usuario = { nome, email: userEmail }
       localStorage.setItem(TOKEN_KEY, access_token)
