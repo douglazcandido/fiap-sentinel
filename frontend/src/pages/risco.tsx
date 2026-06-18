@@ -120,7 +120,7 @@ export default function RiscoPage() {
             <Card index={1} className="lg:col-span-2">
               <CardHeader
                 title="KPIs de meta OLA"
-                subtitle="Atingimento por ano e prioridade"
+                subtitle="% acima de 100 indica superação da meta (menos violações que o limite aceitável)"
                 icon={<Target className="h-4 w-4" />}
                 action={
                   <select
