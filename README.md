@@ -90,7 +90,7 @@ fiap-sentinel/
 ├── docs/
 │   ├── architecture.svg
 │   ├── sentinel-logo.png
-│   └── dataset-documentation.docx
+│   └── dicionario-dados.docx
 ├── docker-compose.yml
 └── README.md
 ```
@@ -133,7 +133,7 @@ docker compose exec backend python -m scripts.create_user "Seu Nome" "seu@email.
 
 ## Documentação
 
-- [Dicionário de dados do dataset](docs/dataset-documentation.docx)
+- [Dicionário de dados do dataset](docs/dicionario-dados.docx)
 - [Diagrama de arquitetura](docs/architecture.svg)
 
 ## Decisões técnicas relevantes
