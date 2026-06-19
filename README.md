@@ -69,18 +69,18 @@ O pipeline de dados segue arquitetura medalhão (Bronze → Silver → Gold), is
 fiap-sentinel/
 ├── backend/
 │   ├── app/                  # FastAPI: rotas, schemas, services, modelos ORM
-│   ├── pipeline/              # Ingestão, limpeza, agregação e treino dos modelos
-│   ├── scripts/                # Utilitários (ex: criação de usuário)
-│   ├── sql/                       # Scripts DDL (schemas Silver, Gold, autenticação)
-│   ├── data/                     # Dataset de origem (não versionado)
+│   ├── pipeline/             # Ingestão, limpeza, agregação e treino dos modelos
+│   ├── scripts/              # Utilitários (ex: criação de usuário)
+│   ├── sql/                  # Scripts DDL (schemas Silver, Gold, autenticação)
+│   ├── data/                 # Dataset de origem (não versionado)
 │   ├── Dockerfile
 │   ├── .env.example
 │   └── requirements.txt
 ├── frontend/
 │   ├── src/
-│   │   ├── components/        # UI compartilhada (sidebar, cards, gráficos)
-│   │   ├── lib/                    # Cliente HTTP, autenticação, hooks de dados
-│   │   ├── pages/                 # Os 6 painéis do dashboard
+│   │   ├── components/       # UI compartilhada (sidebar, cards, gráficos)
+│   │   ├── lib/              # Cliente HTTP, autenticação, hooks de dados
+│   │   ├── pages/            # Os 6 painéis do dashboard
 │   │   ├── App.tsx
 │   │   └── main.tsx
 │   ├── Dockerfile
@@ -89,7 +89,8 @@ fiap-sentinel/
 │   └── package.json
 ├── docs/
 │   ├── architecture.svg
-│   └── logo-placeholder.svg
+│   ├── sentinel-logo.png
+│   └── dataset-documentation.docx
 ├── docker-compose.yml
 └── README.md
 ```
@@ -129,6 +130,11 @@ docker compose exec backend python -m scripts.create_user "Seu Nome" "seu@email.
 |---|---|
 | Aplicação | http://localhost:5173 |
 | Documentação interativa da API | http://localhost:8000/docs |
+
+## Documentação
+
+- [Dicionário de dados do dataset](docs/dataset-documentation.docx)
+- [Diagrama de arquitetura](docs/architecture.svg)
 
 ## Decisões técnicas relevantes
 
