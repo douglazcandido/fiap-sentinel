@@ -1,0 +1,75 @@
+<svg width="680" height="660" viewBox="0 0 680 660" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Arquitetura do Sentinel</title>
+<desc>Fluxo de dados desde o arquivo de origem ate o frontend: Bronze, Silver, Gold, API e frontend.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5f5e5a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs>
+<rect width="680" height="660" fill="#ffffff"/>
+
+<g>
+<rect x="270" y="20" width="140" height="44" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="340" y="46" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#2C2C2A">LW-DATASET.xlsx</text>
+</g>
+
+<line x1="340" y1="64" x2="340" y2="100" stroke="#5f5e5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<g>
+<rect x="60" y="100" width="560" height="100" rx="20" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+<text x="80" y="128" font-family="sans-serif" font-size="14" font-weight="500" fill="#4A1B0C">Bronze</text>
+<text x="80" y="146" font-family="sans-serif" font-size="12" fill="#712B13">Dados brutos, fidelidade total ao arquivo original</text>
+</g>
+<g>
+<rect x="240" y="155" width="200" height="32" rx="8" fill="#F5C4B3" stroke="#993C1D" stroke-width="0.5"/>
+<text x="340" y="175" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#4A1B0C">bronze.incidentes</text>
+</g>
+
+<line x1="340" y1="200" x2="340" y2="236" stroke="#5f5e5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<g>
+<rect x="60" y="236" width="560" height="100" rx="20" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="80" y="264" font-family="sans-serif" font-size="14" font-weight="500" fill="#412402">Silver</text>
+<text x="80" y="282" font-family="sans-serif" font-size="12" fill="#633806">Modelo dimensional, limpeza e features derivadas</text>
+</g>
+<g>
+<rect x="220" y="291" width="240" height="32" rx="8" fill="#FAC775" stroke="#854F0B" stroke-width="0.5"/>
+<text x="340" y="311" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#412402">silver.fato_incidentes</text>
+</g>
+
+<line x1="340" y1="336" x2="340" y2="372" stroke="#5f5e5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<g>
+<rect x="60" y="372" width="560" height="120" rx="20" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="80" y="400" font-family="sans-serif" font-size="14" font-weight="500" fill="#04342C">Gold</text>
+<text x="80" y="418" font-family="sans-serif" font-size="12" fill="#085041">Agregacoes historicas e saidas dos modelos de ML</text>
+</g>
+<g>
+<rect x="80" y="428" width="150" height="48" rx="8" fill="#9FE1CB" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="155" y="450" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#04342C">NeuralProphet</text>
+<text x="155" y="468" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#085041">Previsao D+1 / D+7</text>
+</g>
+<g>
+<rect x="265" y="428" width="150" height="48" rx="8" fill="#9FE1CB" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="340" y="450" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#04342C">Random forest</text>
+<text x="340" y="468" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#085041">Risco de violacao OLA</text>
+</g>
+<g>
+<rect x="450" y="428" width="150" height="48" rx="8" fill="#9FE1CB" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="525" y="450" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#04342C">K-means</text>
+<text x="525" y="468" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#085041">Padroes e clusters</text>
+</g>
+
+<line x1="340" y1="492" x2="340" y2="528" stroke="#5f5e5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<g>
+<rect x="190" y="528" width="300" height="56" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="340" y="552" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="500" fill="#042C53">FastAPI</text>
+<text x="340" y="570" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#0C447C">JWT auth, 5 rotas REST, envelope padrao</text>
+</g>
+
+<line x1="340" y1="584" x2="340" y2="620" stroke="#5f5e5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<g>
+<rect x="190" y="620" width="300" height="40" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="340" y="645" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="500" fill="#26215C">React + Vite</text>
+</g>
+</svg>
