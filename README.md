@@ -140,7 +140,7 @@ Algumas decisões de modelagem valem registro, já que refletem limitações rea
 
 ## Equipe
 
-Projeto desenvolvido para o Challenge FIAP × Locaweb 2026 — turma 2TSCOA.
+Projeto desenvolvido para o Challenge FIAP × Locaweb 2026 - Grupo Datateston | 2TSCOA.
 
 ---
 
