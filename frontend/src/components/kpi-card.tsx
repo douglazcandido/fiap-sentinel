@@ -6,7 +6,6 @@ interface KpiCardProps {
   value: ReactNode
   icon: ReactNode
   hint?: ReactNode
-  /** accent color of the icon chip */
   tone?: "accent" | "high" | "med" | "low"
   index?: number
   title?: string
@@ -33,12 +32,18 @@ export function KpiCard({
     <div
       title={title}
       className={cn(
-        "group animate-enter rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5",
-        "transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--color-border-strong)]",
+        "group relative animate-enter overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5",
+        "transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--color-border-strong)]",
         "hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.6)]",
       )}
       style={{ animationDelay: index !== undefined ? `${index * 70}ms` : undefined }}
     >
+      {/* Top accent line */}
+      <div
+        className="absolute inset-x-0 top-0 h-[2px]"
+        style={{ background: colors.fg }}
+      />
+
       <div className="flex items-start justify-between gap-3">
         <span className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">
           {label}
@@ -53,7 +58,9 @@ export function KpiCard({
       <div className="tnum mt-3 text-3xl font-semibold tracking-tight text-[var(--color-foreground)]">
         {value}
       </div>
-      {hint && <div className="mt-2 text-xs text-[var(--color-muted)]">{hint}</div>}
+      {hint && (
+        <div className="mt-2 text-xs text-[var(--color-muted)]">{hint}</div>
+      )}
     </div>
   )
 }
