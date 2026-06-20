@@ -7,10 +7,14 @@ import {
   Network,
   Lightbulb,
   LogOut,
+  Pin,
+  PinOff,
 } from "lucide-react"
 import { useAuth } from "@/lib/auth"
-import { Logo } from "@/components/logo"
 import { cn } from "@/lib/utils"
+
+export const SIDEBAR_COLLAPSED_W = 68
+export const SIDEBAR_EXPANDED_W = 240
 
 export const NAV_ITEMS = [
   { to: "/", label: "Dashboard", icon: LayoutGrid, end: true },
@@ -21,29 +25,31 @@ export const NAV_ITEMS = [
   { to: "/recomendacoes", label: "Recomendações", icon: Lightbulb },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+  expanded: boolean
+  pinned: boolean
+  onHoverChange: (v: boolean) => void
+  onPinnedChange: (v: boolean) => void
+}
+
+export function Sidebar({ expanded, pinned, onHoverChange, onPinnedChange }: SidebarProps) {
   const { user, logout } = useAuth()
-  useLocation() // ensure re-render on route change for active states
+  useLocation()
 
   const inicial = user?.nome?.trim().charAt(0).toUpperCase() || "?"
 
   return (
     <aside
+      onMouseEnter={() => onHoverChange(true)}
+      onMouseLeave={() => onHoverChange(false)}
       className={cn(
-        "group/sidebar fixed inset-y-0 left-0 z-40 flex flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)]",
-        "w-[68px] transition-[width] duration-200 ease-out hover:w-60",
+        "fixed inset-y-0 left-0 z-40 flex flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)] pt-20",
+        "transition-[width] duration-200 ease-out",
       )}
+      style={{ width: expanded ? SIDEBAR_EXPANDED_W : SIDEBAR_COLLAPSED_W }}
     >
-      {/* Logo */}
-      <div className="relative flex h-16 items-center gap-3 overflow-hidden px-[18px]">
-        <Logo size={32} glow />
-        <span className="whitespace-nowrap text-base font-semibold tracking-tight text-[var(--color-foreground)] opacity-0 transition-opacity duration-200 group-hover/sidebar:opacity-100">
-          Sentinel
-        </span>
-      </div>
-
       {/* Nav */}
-      <nav className="mt-2 flex flex-1 flex-col gap-1 px-3">
+      <nav className="mt-8 flex flex-1 flex-col gap-1 px-3">
         {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
@@ -64,7 +70,12 @@ export function Sidebar() {
                   <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-[var(--color-accent)]" />
                 )}
                 <Icon className="h-[18px] w-[18px] shrink-0" />
-                <span className="whitespace-nowrap opacity-0 transition-opacity duration-200 group-hover/sidebar:opacity-100">
+                <span
+                  className={cn(
+                    "whitespace-nowrap transition-opacity duration-200",
+                    expanded ? "opacity-100" : "opacity-0",
+                  )}
+                >
                   {label}
                 </span>
               </>
@@ -73,13 +84,43 @@ export function Sidebar() {
         ))}
       </nav>
 
-      {/* Footer: user + logout */}
+      {/* Footer: pin + user + logout */}
       <div className="border-t border-[var(--color-border)] p-3">
+        {/* Pin button */}
         <div className="flex items-center gap-3 overflow-hidden rounded-lg px-1 py-1.5">
+          <button
+            onClick={() => onPinnedChange(!pinned)}
+            title={pinned ? "Desafixar sidebar" : "Fixar sidebar aberta"}
+            className={cn(
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all",
+              pinned
+                ? "bg-[var(--color-accent-soft)] text-[var(--color-accent)]"
+                : "text-[var(--color-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-foreground)]",
+            )}
+          >
+            {pinned ? <Pin className="h-4 w-4" /> : <PinOff className="h-4 w-4" />}
+          </button>
+          <span
+            className={cn(
+              "whitespace-nowrap text-xs text-[var(--color-muted)] transition-opacity duration-200",
+              expanded ? "opacity-100" : "opacity-0",
+            )}
+          >
+            {pinned ? "Fixado" : "Fixar menu"}
+          </span>
+        </div>
+
+        {/* User */}
+        <div className="mt-1 flex items-center gap-3 overflow-hidden rounded-lg px-1 py-1.5">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-surface-3)] text-xs font-semibold text-[var(--color-accent)]">
             {inicial}
           </span>
-          <div className="min-w-0 flex-1 opacity-0 transition-opacity duration-200 group-hover/sidebar:opacity-100">
+          <div
+            className={cn(
+              "min-w-0 flex-1 transition-opacity duration-200",
+              expanded ? "opacity-100" : "opacity-0",
+            )}
+          >
             <p className="truncate text-xs font-medium text-[var(--color-foreground)]">
               {user?.nome || "Usuário"}
             </p>
@@ -88,7 +129,10 @@ export function Sidebar() {
           <button
             onClick={logout}
             title="Sair"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--color-muted)] opacity-0 transition-all duration-200 hover:bg-[var(--color-risk-high-soft)] hover:text-[var(--color-risk-high)] group-hover/sidebar:opacity-100"
+            className={cn(
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--color-muted)] transition-all duration-200 hover:bg-[var(--color-risk-high-soft)] hover:text-[var(--color-risk-high)]",
+              expanded ? "opacity-100" : "opacity-0",
+            )}
           >
             <LogOut className="h-4 w-4" />
           </button>

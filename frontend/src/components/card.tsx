@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils"
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode
-  /** stagger index for entrance animation */
   index?: number
   hover?: boolean
 }
@@ -12,10 +11,10 @@ export function Card({ children, className, index, hover, style, ...rest }: Card
   return (
     <div
       className={cn(
-        "rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5",
-        "animate-enter",
-        hover &&
-          "transition-all duration-200 hover:border-[var(--color-border-strong)] hover:bg-[var(--color-surface-2)]",
+        "group/card relative overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5",
+        "animate-enter transition-all duration-300",
+        "hover:border-[var(--color-border-strong)] hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.5)]",
+        hover && "hover:bg-[var(--color-surface-2)]",
         className,
       )}
       style={{
@@ -44,7 +43,7 @@ export function CardHeader({
     <div className="mb-4 flex items-start justify-between gap-4">
       <div className="flex items-center gap-2.5">
         {icon && (
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-accent-soft)] text-[var(--color-accent)]">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--color-accent-soft)] text-[var(--color-accent)]">
             {icon}
           </span>
         )}

@@ -1,12 +1,42 @@
+import { useState } from "react"
 import { Outlet } from "react-router-dom"
-import { Sidebar } from "./sidebar"
+import { Sidebar, SIDEBAR_COLLAPSED_W, SIDEBAR_EXPANDED_W } from "./sidebar"
 
 export function AppLayout() {
+  const [hovered, setHovered] = useState(false)
+  const [pinned, setPinned] = useState(true)
+  const expanded = pinned || hovered
+  const marginLeft = expanded ? SIDEBAR_EXPANDED_W : SIDEBAR_COLLAPSED_W
+
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
-      <Sidebar />
-      {/* fixed left margin = collapsed sidebar width; sidebar expands as overlay */}
-      <div className="ml-[68px] flex min-h-screen flex-col">
+      {/* Global top bar */}
+      <header className="fixed inset-x-0 top-0 z-50 flex h-20 items-center border-b border-[var(--color-border)] bg-[#050810] px-5">
+        <div className="flex items-center gap-3">
+          <img
+            src="/logo-sentinel-corvo.svg"
+            alt="Sentinel"
+            className="h-12 w-auto"
+          />
+          <span className="text-3xl font-bold tracking-tight text-[var(--color-foreground)]">
+            Sentinel
+          </span>
+        </div>
+      </header>
+
+      {/* Sidebar */}
+      <Sidebar
+        expanded={expanded}
+        pinned={pinned}
+        onHoverChange={setHovered}
+        onPinnedChange={setPinned}
+      />
+
+      {/* Main content */}
+      <div
+        className="flex min-h-screen flex-col pt-20 transition-[margin] duration-200"
+        style={{ marginLeft }}
+      >
         <Outlet />
       </div>
     </div>

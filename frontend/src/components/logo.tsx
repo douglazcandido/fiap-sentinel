@@ -25,15 +25,11 @@ export function Logo({ className, size = 36, glow = false }: LogoProps) {
         />
       )}
       <img
-        src="/icon.svg"
+        src="/logo-sentinel.svg"
         alt="Sentinel"
         width={size}
         height={size}
         className="relative z-10"
-        style={{
-          filter: "invert(1) brightness(1.6) sepia(1) saturate(0)",
-          opacity: 0.92,
-        }}
       />
     </div>
   )
