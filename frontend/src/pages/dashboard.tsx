@@ -11,8 +11,8 @@ import {
   ArrowRight,
   Clock,
   Calendar,
+  RefreshCw,
 } from "lucide-react"
-import { Topbar } from "@/components/topbar"
 import { KpiCard } from "@/components/kpi-card"
 import { Card, CardHeader } from "@/components/card"
 import { KpiSkeleton, Skeleton } from "@/components/skeleton"
@@ -25,6 +25,21 @@ import {
   horaLabel,
   diaSemanaLabel,
 } from "@/lib/utils"
+import { useAuth } from "@/lib/auth"
+
+function useUser() {
+  return useAuth()
+}
+
+function getCurrentDateFormatted(): string {
+  const raw = new Date().toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
+  return raw.charAt(0).toUpperCase() + raw.slice(1)
+}
 
 export default function DashboardPage() {
   const { user } = useUser()
@@ -36,7 +51,6 @@ export default function DashboardPage() {
 
   const k = hist.data?.kpis_gerais
 
-  // cluster de maior risco (maior pct_violacao_ola; fallback maior volume)
   const clusterCritico = useMemo(() => {
     if (!clusters.data?.clusters.length) return null
     return [...clusters.data.clusters].sort(
@@ -44,7 +58,6 @@ export default function DashboardPage() {
     )[0]
   }, [clusters.data])
 
-  // KPI de meta mais crítico (menor pct_atingimento_meta)
   const kpiCritico = useMemo(() => {
     const withMeta = risco.data?.kpis_ola.filter((k) => k.pct_atingimento_meta != null) ?? []
     if (!withMeta.length) return null
@@ -54,17 +67,38 @@ export default function DashboardPage() {
   }, [risco.data])
 
   const recDestaque = recs.data?.recomendacoes[0] ?? null
+  const firstName = user?.nome?.split(" ")[0] ?? "Usuário"
 
   return (
-    <>
-      <Topbar
-        title="Dashboard"
-        subtitle={user ? `Bem-vindo de volta, ${user.nome.split(" ")[0]}` : "Visão executiva"}
-        lastUpdate={k ? formatDate(k.periodo_fim) : undefined}
-      />
-      <div className="flex-1 space-y-5 p-6">
-        {/* KPIs principais */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="flex min-h-screen flex-col">
+      <div className="flex flex-1 flex-col gap-5 p-5">
+        {/* Welcome card */}
+        <div className="flex items-center justify-between rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-4 shadow-[0_4px_20px_-6px_rgba(0,0,0,0.4)]">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-2)] text-sm font-bold text-[#06141b]">
+              {firstName.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-[var(--color-foreground)]">
+                Olá, {firstName}
+              </p>
+              <p className="text-[11px] text-[var(--color-muted)]">
+                {getCurrentDateFormatted()}
+              </p>
+            </div>
+          </div>
+          {k && (
+            <div className="flex items-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-1.5 text-xs text-[var(--color-muted)]">
+              <RefreshCw className="h-3.5 w-3.5 text-[var(--color-accent)]" />
+              <span>
+                Atualizado em{" "}
+                <span className="text-[var(--color-foreground)]">{formatDate(k.periodo_fim)}</span>
+              </span>
+            </div>
+          )}
+        </div>
+        {/* KPIs */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {hist.loading || prev.loading || !k ? (
             Array.from({ length: 4 }).map((_, i) => <KpiSkeleton key={i} />)
           ) : (
@@ -106,7 +140,7 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Destaques */}
+        {/* Detail cards */}
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
           {/* Cluster crítico */}
           <Card index={0} className="flex flex-col">
@@ -116,14 +150,15 @@ export default function DashboardPage() {
               action={
                 <Link
                   to="/padroes"
-                  className="text-[var(--color-muted-2)] transition-colors hover:text-[var(--color-accent)]"
+                  className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-2.5 py-1 text-[11px] font-medium text-[var(--color-muted)] transition-all hover:border-[var(--color-accent)]/40 hover:text-[var(--color-accent)]"
                 >
-                  <ArrowRight className="h-4 w-4" />
+                  Ver padrões
+                  <ArrowRight className="h-3 w-3" />
                 </Link>
               }
             />
             {clusters.loading ? (
-              <Skeleton className="h-28 w-full" />
+              <Skeleton className="h-32 w-full" />
             ) : !clusterCritico ? (
               <p className="text-sm text-[var(--color-muted)]">Sem clusters disponíveis.</p>
             ) : (
@@ -131,20 +166,20 @@ export default function DashboardPage() {
                 <p className="text-sm leading-relaxed text-[var(--color-foreground)]">
                   {clusterCritico.descricao ?? `Cluster #${clusterCritico.cluster_id}`}
                 </p>
-                <div className="mt-3 flex items-center gap-3 text-xs text-[var(--color-muted)]">
-                  <span className="flex items-center gap-1">
+                <div className="mt-3 flex items-center gap-2 text-xs text-[var(--color-muted)]">
+                  <span className="flex items-center gap-1.5 rounded-lg bg-[var(--color-surface-2)] px-2.5 py-1.5">
                     <Clock className="h-3.5 w-3.5 text-[var(--color-accent)]" />
                     {horaLabel(clusterCritico.hora_predominante)}
                   </span>
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1.5 rounded-lg bg-[var(--color-surface-2)] px-2.5 py-1.5">
                     <Calendar className="h-3.5 w-3.5 text-[var(--color-accent)]" />
                     {diaSemanaLabel(clusterCritico.dia_semana_predominante)}
                   </span>
                 </div>
-                <div className="mt-auto flex items-end justify-between pt-4">
+                <div className="mt-auto flex items-end justify-between border-t border-[var(--color-border)] pt-4 mt-4">
                   <div>
                     <p className="text-[11px] text-[var(--color-muted-2)]">Incidentes</p>
-                    <p className="tnum text-lg font-semibold text-[var(--color-foreground)]">
+                    <p className="tnum text-2xl font-bold text-[var(--color-foreground)]">
                       {formatInt(clusterCritico.total_incidentes)}
                     </p>
                   </div>
@@ -162,14 +197,15 @@ export default function DashboardPage() {
               action={
                 <Link
                   to="/risco"
-                  className="text-[var(--color-muted-2)] transition-colors hover:text-[var(--color-accent)]"
+                  className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-2.5 py-1 text-[11px] font-medium text-[var(--color-muted)] transition-all hover:border-[var(--color-accent)]/40 hover:text-[var(--color-accent)]"
                 >
-                  <ArrowRight className="h-4 w-4" />
+                  Ver riscos
+                  <ArrowRight className="h-3 w-3" />
                 </Link>
               }
             />
             {risco.loading ? (
-              <Skeleton className="h-28 w-full" />
+              <Skeleton className="h-32 w-full" />
             ) : !kpiCritico ? (
               <p className="text-sm text-[var(--color-muted)]">Sem KPIs de meta.</p>
             ) : (
@@ -182,13 +218,15 @@ export default function DashboardPage() {
                     {kpiCritico.prioridade_label}
                   </Badge>
                 </div>
-                <p className="mt-3 text-[11px] text-[var(--color-muted-2)]">Atingimento da meta</p>
-                <div className="tnum text-3xl font-semibold text-[var(--color-foreground)]">
-                  {formatPct(kpiCritico.pct_atingimento_meta, 0)}
+                <div className="mt-4 rounded-xl bg-[var(--color-surface-2)] p-4">
+                  <p className="text-[11px] text-[var(--color-muted-2)]">Atingimento da meta</p>
+                  <div className="tnum mt-1 text-4xl font-bold text-[var(--color-foreground)]">
+                    {formatPct(kpiCritico.pct_atingimento_meta, 0)}
+                  </div>
+                  <ProgressBar value={kpiCritico.pct_atingimento_meta ?? 0} className="mt-3" />
                 </div>
-                <ProgressBar value={kpiCritico.pct_atingimento_meta ?? 0} className="mt-3" />
                 {kpiCritico.faixa_meta && (
-                  <p className="mt-auto pt-3 text-xs text-[var(--color-muted)]">
+                  <p className="mt-auto border-t border-[var(--color-border)] pt-4 mt-4 text-xs text-[var(--color-muted)]">
                     Faixa: {kpiCritico.faixa_meta}
                   </p>
                 )}
@@ -204,14 +242,15 @@ export default function DashboardPage() {
               action={
                 <Link
                   to="/recomendacoes"
-                  className="text-[var(--color-muted-2)] transition-colors hover:text-[var(--color-accent)]"
+                  className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-2.5 py-1 text-[11px] font-medium text-[var(--color-muted)] transition-all hover:border-[var(--color-accent)]/40 hover:text-[var(--color-accent)]"
                 >
-                  <ArrowRight className="h-4 w-4" />
+                  Ver todas
+                  <ArrowRight className="h-3 w-3" />
                 </Link>
               }
             />
             {recs.loading ? (
-              <Skeleton className="h-28 w-full" />
+              <Skeleton className="h-32 w-full" />
             ) : !recDestaque ? (
               <p className="text-sm text-[var(--color-muted)]">Nenhuma recomendação gerada.</p>
             ) : (
@@ -219,10 +258,10 @@ export default function DashboardPage() {
                 <h4 className="text-sm font-semibold text-[var(--color-foreground)]">
                   {recDestaque.titulo}
                 </h4>
-                <p className="mt-1.5 line-clamp-4 text-sm leading-relaxed text-[var(--color-muted)]">
+                <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-[var(--color-muted)]">
                   {recDestaque.descricao}
                 </p>
-                <div className="mt-auto flex flex-wrap gap-1.5 pt-4">
+                <div className="mt-auto flex flex-wrap gap-1.5 border-t border-[var(--color-border)] pt-4 mt-4">
                   {recDestaque.grupo_nome && <Badge tone="accent">{recDestaque.grupo_nome}</Badge>}
                   {recDestaque.prioridade && (
                     <Badge tone={prioridadeTone(recDestaque.prioridade)}>
@@ -235,11 +274,6 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
-    </>
+    </div>
   )
-}
-
-import { useAuth } from "@/lib/auth"
-function useUser() {
-  return useAuth()
 }
