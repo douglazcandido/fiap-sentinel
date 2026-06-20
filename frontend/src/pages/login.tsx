@@ -2,7 +2,6 @@ import { useState, type FormEvent } from "react"
 import { useNavigate, useLocation, Navigate } from "react-router-dom"
 import { Loader2, AlertCircle, Mail, Lock } from "lucide-react"
 import { useAuth } from "@/lib/auth"
-import { Logo } from "@/components/logo"
 
 export default function LoginPage() {
   const { login, isAuthenticated } = useAuth()
@@ -34,83 +33,100 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--color-background)] px-4">
-      {/* subtle radar glow backdrop */}
+    <main className="flex min-h-screen items-center justify-center bg-[var(--color-background)] p-6">
+      {/* Outer block with glow border */}
       <div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/3 h-[480px] w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[120px]"
-        style={{ background: "rgba(34,211,238,0.10)" }}
-      />
-
-      <div className="relative z-10 w-full max-w-sm animate-enter">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <Logo size={64} glow />
-          <h1 className="mt-5 text-2xl font-semibold tracking-tight text-[var(--color-foreground)]">
-            Sentinel
-          </h1>
-          <p className="mt-1.5 text-sm text-[var(--color-muted)]">
-            Analytics preditivo de incidentes de TI
-          </p>
-        </div>
-
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-2xl"
-        >
-          <div className="flex flex-col gap-4">
-            <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-[var(--color-muted)]">E-mail</span>
-              <div className="relative">
-                <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-2)]" />
-                <input
-                  type="email"
-                  required
-                  autoComplete="username"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="voce@locaweb.com.br"
-                  className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] py-2.5 pl-9 pr-3 text-sm text-[var(--color-foreground)] outline-none transition-colors placeholder:text-[var(--color-muted-2)] focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)]/40"
-                />
-              </div>
-            </label>
-
-            <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-[var(--color-muted)]">Senha</span>
-              <div className="relative">
-                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-2)]" />
-                <input
-                  type="password"
-                  required
-                  autoComplete="current-password"
-                  value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] py-2.5 pl-9 pr-3 text-sm text-[var(--color-foreground)] outline-none transition-colors placeholder:text-[var(--color-muted-2)] focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)]/40"
-                />
-              </div>
-            </label>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-1 flex items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] py-2.5 text-sm font-semibold text-[#06141b] transition-all hover:bg-[var(--color-accent-2)] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading && <Loader2 className="h-4 w-4 animate-spin-slow" />}
-              {loading ? "Entrando..." : "Entrar"}
-            </button>
-
-            {error && (
-              <div className="flex items-start gap-2 rounded-lg border border-[var(--color-risk-high)]/30 bg-[var(--color-risk-high-soft)] px-3 py-2 text-xs text-[var(--color-risk-high)]">
-                <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
+        className="relative w-full max-w-5xl overflow-hidden rounded-3xl animate-enter"
+        style={{
+          boxShadow:
+            "0 0 0 1px rgba(34,211,238,0.15), 0 0 30px -5px rgba(34,211,238,0.2), 0 0 60px -10px rgba(14,165,233,0.1)",
+        }}
+      >
+        <div className="flex min-h-[680px] rounded-3xl border border-[var(--color-border)]/60 bg-[var(--color-surface)]">
+          {/* Left column — hero image */}
+          <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden rounded-l-3xl">
+            <img
+              src="/placeholder.jpg"
+              alt="Imagem de destaque"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[var(--color-surface)]/40" />
           </div>
-        </form>
 
-        <p className="mt-6 text-center text-xs text-[var(--color-muted-2)]">
-          Acesso restrito · Sistema interno Locaweb
-        </p>
+          {/* Right column — form */}
+          <div className="flex w-full lg:w-1/2 items-center justify-center px-8 py-12">
+            <div className="w-full max-w-sm">
+              {/* Logo + heading */}
+              <div className="mb-10 flex flex-col items-center text-center">
+                <img
+                  src="/logo-sentinel.svg"
+                  alt="Sentinel"
+                  className="h-40 w-auto"
+                />
+                <p className="mt-4 text-sm text-[var(--color-muted)]">
+                  Analytics Preditivo de Incidentes de TI
+                </p>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleSubmit}>
+                <div className="flex flex-col gap-4">
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-xs font-medium text-[var(--color-muted)]">E-mail</span>
+                    <div className="relative">
+                      <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-2)]" />
+                      <input
+                        type="email"
+                        required
+                        autoComplete="username"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="voce@locaweb.com.br"
+                        className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] py-2.5 pl-9 pr-3 text-sm text-[var(--color-foreground)] outline-none transition-colors placeholder:text-[var(--color-muted-2)] focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)]/40"
+                      />
+                    </div>
+                  </label>
+
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-xs font-medium text-[var(--color-muted)]">Senha</span>
+                    <div className="relative">
+                      <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-2)]" />
+                      <input
+                        type="password"
+                        required
+                        autoComplete="current-password"
+                        value={senha}
+                        onChange={(e) => setSenha(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] py-2.5 pl-9 pr-3 text-sm text-[var(--color-foreground)] outline-none transition-colors placeholder:text-[var(--color-muted-2)] focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)]/40"
+                      />
+                    </div>
+                  </label>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="mt-1 flex items-center justify-center gap-2 rounded-lg bg-[var(--color-accent)] py-2.5 text-sm font-semibold text-[#06141b] transition-all hover:bg-[var(--color-accent-2)] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {loading && <Loader2 className="h-4 w-4 animate-spin-slow" />}
+                    {loading ? "Entrando..." : "Entrar"}
+                  </button>
+
+                  {error && (
+                    <div className="flex items-start gap-2 rounded-lg border border-[var(--color-risk-high)]/30 bg-[var(--color-risk-high-soft)] px-3 py-2 text-xs text-[var(--color-risk-high)]">
+                      <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                      <span>{error}</span>
+                    </div>
+                  )}
+                </div>
+              </form>
+
+              <p className="mt-6 text-center text-xs text-[var(--color-muted-2)]">
+                Acesso restrito · Sistema interno Locaweb
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   )
