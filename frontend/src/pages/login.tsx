@@ -46,11 +46,10 @@ export default function LoginPage() {
           {/* Left column — hero image */}
           <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden rounded-l-3xl">
             <img
-              src="/placeholder.jpg"
+              src="/logo-locaweb.png"
               alt="Imagem de destaque"
               className="absolute inset-0 h-full w-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[var(--color-surface)]/40" />
           </div>
 
           {/* Right column — form */}
