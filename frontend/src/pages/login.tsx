@@ -37,12 +37,8 @@ export default function LoginPage() {
       {/* Outer block with glow border */}
       <div
         className="relative w-full max-w-5xl overflow-hidden rounded-3xl animate-enter"
-        style={{
-          boxShadow:
-            "0 0 0 1px rgba(34,211,238,0.15), 0 0 30px -5px rgba(34,211,238,0.2), 0 0 60px -10px rgba(14,165,233,0.1)",
-        }}
       >
-        <div className="flex min-h-[680px] rounded-3xl border border-[var(--color-border)]/60 bg-[var(--color-surface)]">
+        <div className="flex min-h-[680px] rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)]">
           {/* Left column — hero image */}
           <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden rounded-l-3xl">
             <img
