@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useRef } from "react"
 import { ShieldAlert, Target, TrendingUp, TrendingDown } from "lucide-react"
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts"
 import { Topbar } from "@/components/topbar"
@@ -21,11 +21,15 @@ export default function RiscoPage() {
     [data],
   )
 
-  const anosDisponiveis = useMemo(() => {
+  const anosRef = useRef<number[]>([])
+  useMemo(() => {
+    if (ano !== "todos") return
     const anos = new Set<number>()
     data?.kpis_ola.forEach((k) => anos.add(k.ano))
-    return Array.from(anos).sort((a, b) => b - a)
-  }, [data])
+    const lista = Array.from(anos).sort((a, b) => b - a)
+    if (lista.length > 0) anosRef.current = lista
+  }, [data, ano])
+  const anosDisponiveis = anosRef.current
 
   return (
     <>
